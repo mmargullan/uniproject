@@ -1,0 +1,12 @@
+ALTER TABLE users
+    ALTER COLUMN username SET NOT NULL,
+    ALTER COLUMN password SET NOT NULL,
+    ALTER COLUMN email SET NOT NULL;
+
+CREATE SEQUENCE IF NOT EXISTS users_id_seq;
+ALTER TABLE users
+    ALTER COLUMN id SET NOT NULL;
+ALTER TABLE users
+    ALTER COLUMN id SET DEFAULT nextval('users_id_seq');
+
+ALTER SEQUENCE users_id_seq OWNED BY users.id;
