@@ -1,0 +1,30 @@
+Main Requirements for laboratory work 5
+1.	Creating a PostgreSQL Database(or MongoDB):
+o	Create a database task_app and set up the following tables:
+	users: to store user data.
+	tasks: to store information about tasks.
+	categories: to store a list of task categories.
+2.	Database Table Structure:
+o	users: stores information about users and the account creation date.
+o	tasks: stores task details, including title, description, due_date, status, priority, and references to users and categories.
+o	categories: allows categorizing tasks (e.g., “Work,” “Personal,” etc.).
+3.	Setting Up a Spring Boot Project:
+o	Include the following dependencies:
+	Spring Web
+	Spring Data JPA
+	DB Driver
+	Thymeleaf
+	Spring Security (for basic user authentication)
+4.	Authentication and Authorization:
+o	Implement basic registration and login.
+o	Only authenticated users should have access to task management pages.
+o	Redirect unauthenticated users to the login page.
+5.	Task Functionality:
+o	Users can add, edit, delete, and view only their own tasks.
+o	When adding or editing a task, users can select a category and priority.
+o	Implement form validation: required fields (title) and date verification (due_date should not be in the past).
+6.	User Interface with Thymeleaf:
+o	Provide a simple and user-friendly interface.
+o	The main page after login displays the user's list of tasks.
+o	Allow task sorting by due date and filtering by status or category.
+
