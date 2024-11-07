@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 <head>
     <meta charset="UTF-8">
     <title>Login page</title>
@@ -12,10 +12,13 @@
         <div class="logo">
             <a href=""></a>
         </div>
+        <div class="login">
+            <h4>Welcome <span name="login" th:text="${loginUsername}"></span></h4>
+        </div>
         <ul>
             <li><a href="#dashboard" id="targeted">dashboard</a></li>
-            <li><a href="#posts">posts</a></li>
-            <li><a href="#media">media</a></li>
+            <li><a href="/personalPage/manageTasks#task" id="manageTasksLink">Manage Tasks</a></li>
+            <li><a href="/personalPage/manageCategories#category" id="manageCategoriesLink" sec:authorize="hasRole('ROLE_ADMIN')">Manage Categories</a></li>
             <li><a href="#pages">pages</a></li>
             <li><a href="#links">links</a></li>
             <li><a href="#comments">comments</a></li>
@@ -29,13 +32,14 @@
     <div class="main">
         <ul class="topbar clearfix">
             <li><a href="#">q</a></li>
-            <li><a href="#">p</a></li>
+            <li><a href="#" onclick="document.getElementById('logoutForm').submit()">Logout</a></li>
+            <form id="logoutForm" th:action="@{/users/logout}" method="post" style="display: none;"></form>
             <li><a href="#">o</a></li>
             <li><a href="#">f</a></li>
             <li><a href="#">n</a></li>
         </ul>
         <div class="mainContent clearfix">
-            <div id="dashboard">
+            <div id="dashboard" style="display: none;">
                 <h2 class="header"><span class="icon"></span>Dashboard</h2>
                 <div class="monitor">
                     <h4>Right Now</h4>
@@ -69,11 +73,148 @@
                     </form>
                 </div>
             </div>
-            <div id="posts">
-                <h2 class="header">posts</h2>
+            <div id="task" style="display: none;">
+                <h2 class="header">Manage tasks</h2>
+                <div class="monitor">
+                    <h4>All Tasks</h4>
+                    <p th:if="${#lists.isEmpty(tasksForTheCurrentUser)}">No Tasks</p>
+                    <div class="clearfix">
+                        <ul class="content">
+                            <li th:each="task : ${tasksForTheCurrentUser}">
+                                <strong th:text="${task.title}">Task Title</strong> - <span th:text="${task.description}">Task Description</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="monitor">
+                    <h4>Add Task</h4>
+                    <div class="clearfix">
+                        <form action="#" th:action="@{/personalPage/manageTasks/add}" th:object="${task}" method="post">
+                            <div>
+                                <label for="title">Title:</label>
+                                <input type="text" id="title" name="title" required />
+                            </div>
+                            <div>
+                                <label for="description">Description:</label>
+                                <input type="text" id="description" name="description" required />
+                            </div>
+                            <div>
+                                <label for="due_date">Due Date:</label>
+                                <input type="date" id="due_date" name="due_date" required />
+                                <span th:if="${illegalArgumentAdd != null}" style="color: red" th:text="${illegalArgumentAdd}"></span><br>
+                            </div>
+                            <div>
+                                <label for="status">Status:</label>
+                                <input type="text" id="status" name="status" required />
+                            </div>
+                            <div>
+                                <label for="priority">Priority:</label>
+                                <input type="text" id="priority" name="priority" required />
+                            </div>
+                            <div>
+                                <label for="categoryId">Category:</label>
+                                <select id="categoryId" name="category.id" required>
+                                    <option value="" disabled selected>Select a category</option>
+                                    <option th:each="category : ${categories}"
+                                            th:value="${category.id}"
+                                            th:text="${category.name}">
+                                    </option>
+                                </select>
+                            </div>
+                            <button type="submit">Add Task</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="monitor">
+                    <h4>Edit Task</h4>
+                    <div class="clearfix">
+                        <form action="#" th:action="@{/personalPage/manageTasks/edit}" th:object="${task}" method="post">
+                            <div>
+                                <label for="taskTitle">Task by title:</label>
+                                <select id="taskTitle" name="selectedTaskByTitle" required>
+                                    <option value="" disabled selected>Select a category</option>
+                                    <option th:each="task : ${tasksForTheCurrentUser}"
+                                            th:text="${task.title}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="title">Title:</label>
+                                <input type="text" name="title" required/>
+                            </div>
+                            <div>
+                                <label for="description">Description:</label>
+                                <input type="text" name="description" />
+                            </div>
+                            <div>
+                                <label for="due_date">Due Date:</label>
+                                <input type="date" name="due_date" />
+                                <span th:if="${illegalArgumentEdit != null}" style="color: red" th:text="${illegalArgumentEdit}"></span><br>
+                            </div>
+                            <div>
+                                <label for="status">Status:</label>
+                                <input type="text" name="status" />
+                            </div>
+                            <div>
+                                <label for="priority">Priority:</label>
+                                <input type="text" name="priority" />
+                            </div>
+                            <div>
+                                <label for="categoryId">Category:</label>
+                                <select name="category.id">
+                                    <option value="" disabled selected>Select a category</option>
+                                    <option th:each="category : ${categories}"
+                                            th:value="${category.id}"
+                                            th:text="${category.name}">
+                                    </option>
+                                </select>
+                            </div>
+                            <button type="submit">Edit Task</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="monitor">
+                    <h4>Delete Task</h4>
+                    <div class="clearfix">
+                        <form action="#" th:action="@{/personalPage/manageTasks/delete}" th:object="${task}" method="post">
+                            <div>
+                                <label for="deleteTaskTitle">Task by title:</label>
+                                <select id="deleteTaskTitle" name="deleteTaskByTitle" required>
+                                    <option value="" disabled selected>Select a category</option>
+                                    <option th:each="task : ${tasksForTheCurrentUser}"
+                                            th:text="${task.title}">
+                                    </option>
+                                </select>
+                            </div>
+                            <button type="submit">Delete Task</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div id="media">
-                <h2 class="header">media</h2>
+            <div id="category" style="display: none;">
+                <h2 class="header">Manage Categories</h2>
+                <div class="monitor">
+                    <h4>All Categories</h4>
+                    <p th:if="${#lists.isEmpty(categories)}">No categories</p>
+                    <div class="clearfix">
+                        <ul class="content">
+                            <li th:each="category : ${categories}">
+                                <strong th:text="${category.name}">Category Name</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="monitor">
+                    <h4>Add Category</h4>
+                    <div class="clearfix">
+
+                        <form id="addCategoryForm" th:action="@{/personalPage/manageCategories/add}" method="post">
+                            <input type="text" name="newCategory" placeholder="Enter new category name" required />
+                            <button type="submit">Add Category</button>
+                        </form>
+                    </div>
+                </div>
             </div>
             <div id="pages">
                 <h2 class="header">pages</h2>
@@ -108,6 +249,8 @@
         </ul>
     </div>
 </div>
+
+<script src="/js/user_page.js" defer></script>
 
 </body>
 </html>

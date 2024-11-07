@@ -1,21 +1,20 @@
 package com.margulan.uniproject.Service.Impl;
 
-import com.margulan.uniproject.Exception.*;
+import com.margulan.uniproject.Exception.DuplicateEmailException;
+import com.margulan.uniproject.Exception.ResourceNotFoundException;
+import com.margulan.uniproject.Exception.UserNotFoundException;
 import com.margulan.uniproject.Mapper.UserMapper;
 import com.margulan.uniproject.Model.Dto.UserDto;
 import com.margulan.uniproject.Model.User;
 import com.margulan.uniproject.Repository.UsersRepository;
 import com.margulan.uniproject.Service.RedisService;
 import com.margulan.uniproject.Service.UsersService;
-import jdk.jshell.spi.ExecutionControlProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class UsersServiceImpl implements UsersService {
@@ -50,7 +49,7 @@ public class UsersServiceImpl implements UsersService {
             usersRepository.save(user);
         }
 
-            // Save user to Redis
+        // Save user to Redis
 //            redisService.saveData(USERS_CACHE_KEY, user);
 
     }

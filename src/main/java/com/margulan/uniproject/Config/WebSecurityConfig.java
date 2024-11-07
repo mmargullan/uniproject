@@ -4,15 +4,20 @@ import com.margulan.uniproject.Service.Impl.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
 
@@ -23,8 +28,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-    @Autowired
-    CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     public WebSecurityConfig(CustomUserDetailsService customUserDetailsService) {
         this.customUserDetailsService = customUserDetailsService;
@@ -32,38 +36,44 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
-        AuthenticationManagerBuilder authenticationManagerBuilder = httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
-        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .authenticationManager(authenticationManager)
+                .formLogin(form -> form
+                        .loginPage("/users/login")
+                        .loginProcessingUrl("/users/login")
+                        .usernameParameter("email") // Set authentication username parameter as "email" (by default "username")
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/personalPage/home", true)
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutUrl("/users/logout")
+                        .logoutSuccessUrl("/users/login?logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
+                )
+                .authorizeHttpRequests(auth -> {auth
+                            .requestMatchers("/", "/index.html", "/css/**", "/users/register", "/users/login").permitAll()
+//                            .requestMatchers("/personalPage/home").hasRole("USER")
+//                            .requestMatchers("/personalPage/home").hasRole("ADMIN")
+                            .anyRequest().authenticated();
+                })
+                .authenticationManager(authenticationManager(httpSecurity))
                 .httpBasic(withDefaults())
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        .maximumSessions(1)
-                        .expiredUrl("/users/login")
-                        .expiredSessionStrategy(expiredSessionStrategy()))
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/users/login")) // Redirect unauthenticated users to login
+                )
                 .build();
     }
 
-//    @Bean
-//    public AuthenticationManager authenticationManager(HttpSecurity httpSecurity, CustomUserDetailsService customUserDetailsService) throws Exception {
-//        AuthenticationManagerBuilder authManagerBuilder = httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
-//        authManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
-//        return authManagerBuilder.build();
-//    }
-
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder
+                .userDetailsService(customUserDetailsService)
+                .passwordEncoder(passwordEncoder());
 
-    @Bean
-    public SessionInformationExpiredStrategy expiredSessionStrategy() {
-        SimpleRedirectSessionInformationExpiredStrategy strategy = new SimpleRedirectSessionInformationExpiredStrategy("/users/login");
-        return strategy;
+        return authenticationManagerBuilder.build();
     }
 
     @Bean

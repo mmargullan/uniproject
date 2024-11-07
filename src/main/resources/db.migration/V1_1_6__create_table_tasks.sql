@@ -4,6 +4,7 @@ CREATE TABLE if not exists tasks
     title VARCHAR(255),
     description  VARCHAR(255),
     due_date DATE,
+    status   VARCHAR(255),
     priority VARCHAR(255),
     user_id INTEGER                                  NOT NULL,
     category_id INTEGER  NOT NULL,

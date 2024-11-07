@@ -5,8 +5,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 public interface RedisService {
 
-    public void saveData(String key, Object data);
-    public Object getData(String key);
-    public void deleteData(String key);
+    void saveData(String key, Object data);
+    Object getData(String key);
+    void deleteData(String key);
 
 }

@@ -11,8 +11,8 @@
     <div class="form">
         <form class="login-form" method="post" action="/users/login" th:object="${loginRequest}">
             <h2>Login</h2>
-            <input type="email" name="email" placeholder="Email"/>
-            <input type="password" name="password" placeholder="Password"/>
+            <input type="email" name="email" id="email" placeholder="Email"/>
+            <input type="password" name="password" id="password" placeholder="Password"/>
             <button>login</button>
             <p class="message">Not registered? <a href="/users/register">Create an account</a></p>
         </form>
