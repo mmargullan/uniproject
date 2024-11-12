@@ -8,7 +8,7 @@ import java.util.List;
 public interface UsersService {
 
     void createUser(UserDto userDto);
-    List<UserDto> getUsers();
+    List<UserDto> getAllUsers();
     void deleteUser(String id);
 //    String authenticate(UserDto userDto);
     User login(UserDto userDto);

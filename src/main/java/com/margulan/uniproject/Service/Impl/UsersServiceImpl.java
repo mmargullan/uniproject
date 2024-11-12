@@ -40,7 +40,6 @@ public class UsersServiceImpl implements UsersService {
     public void createUser(UserDto userDto) {
 
         if (usersRepository.findByEmail(userDto.getEmail()).isPresent()) {
-//            throw new DuplicateResourceException("Duplicate email -> " + userDto.getEmail());
             throw new DuplicateEmailException("Duplicate email");
         } else {
             User user = userMapper.toEntity(userDto);
@@ -55,7 +54,7 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public List<UserDto> getUsers() {
+    public List<UserDto> getAllUsers() {
         try {
             List<User> users = usersRepository.findAll();
             List<UserDto> userDtos = new ArrayList<>();

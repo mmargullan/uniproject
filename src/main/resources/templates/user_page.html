@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Login page</title>
     <link rel="stylesheet" href="/css/user_page_style.css">
+    <link rel="stylesheet" href="/css/filter_table_style.css">
 </head>
 <body>
 
@@ -16,15 +17,12 @@
             <h4>Welcome <span name="login" th:text="${loginUsername}"></span></h4>
         </div>
         <ul>
-            <li><a href="#dashboard" id="targeted">dashboard</a></li>
             <li><a href="/personalPage/manageTasks#task" id="manageTasksLink">Manage Tasks</a></li>
             <li><a href="/personalPage/manageCategories#category" id="manageCategoriesLink" sec:authorize="hasRole('ROLE_ADMIN')">Manage Categories</a></li>
-            <li><a href="#pages">pages</a></li>
-            <li><a href="#links">links</a></li>
-            <li><a href="#comments">comments</a></li>
-            <li><a href="#widgets">widgets</a></li>
+            <li><a href="/personalPage/manageUsers#users" id="manageUsersLink" sec:authorize="hasRole('ROLE_ADMIN')">Manage Users</a></li>
+            <li><a href="/personalPage/manageAllTasks#tasks" id="manageAllTasksLink" sec:authorize="hasRole('ROLE_ADMIN')">Manage All Tasks</a></li>
+            <li><a href="/personalPage/manageNotifications#notifications" id="manageNotificationsLink">Manage Notifications</a></li>
             <li><a href="#plugins">plugins</a></li>
-            <li><a href="#users">users</a></li>
             <li><a href="#tools">tools</a></li>
             <li><a href="#settings">settings</a></li>
         </ul>
@@ -39,40 +37,6 @@
             <li><a href="#">n</a></li>
         </ul>
         <div class="mainContent clearfix">
-            <div id="dashboard" style="display: none;">
-                <h2 class="header"><span class="icon"></span>Dashboard</h2>
-                <div class="monitor">
-                    <h4>Right Now</h4>
-                    <div class="clearfix">
-                        <ul class="content">
-                            <li>content</li>
-                            <li class="posts"><span class="count">179</span><a href="">posts</a></li>
-                            <li class="pages"><span class="count">13</span><a href="">pages</a></li>
-                            <li class="categories"><span class="count">21</span><a href="">categories</a></li>
-                            <li class="tags"><span class="count">305</span><a href="">tags</a></li>
-                        </ul>
-                        <ul class="discussions">
-                            <li>discussions</li>
-                            <li class="comments"><span class="count">353</span><a href="">comments</a></li>
-                            <li class="approved"><span class="count">319</span><a href="">approved</a></li>
-                            <li class="pending"><span class="count">0</span><a href="">pending</a></li>
-                            <li class="spam"><span class="count">34</span><a href="">spam</a></li>
-                        </ul>
-                    </div>
-                    <p>Theme <a href="">Twenty Eleven</a> with <a href="">3 widgets</a></p>
-                </div>
-                <div class="quick-press">
-                    <h4>Quick Press</h4>
-                    <form action="" method="post">
-                        <input type="text" name="title" placeholder="Title"/>
-                        <input type="text" name="content" placeholder="Content"/>
-                        <input type="text" name="tags" placeholder="Tags"/>
-                        <button type="button" class="save">l</button>
-                        <button type="button" class="delet">m</button>
-                        <button type="submit" class="submit" name="submit">Publish</button>
-                    </form>
-                </div>
-            </div>
             <div id="task" style="display: none;">
                 <h2 class="header">Manage tasks</h2>
                 <div class="monitor">
@@ -216,23 +180,123 @@
                     </div>
                 </div>
             </div>
-            <div id="pages">
-                <h2 class="header">pages</h2>
+            <div id="users">
+                <h2 class="header">Manage Users</h2>
+                <div class="monitor">
+                    <h4>All Users</h4>
+                    <p th:if="${#lists.isEmpty(allUsers)}">No users</p>
+                    <div class="clearfix">
+                        <ul class="content">
+                            <div class="my_table">
+                                <table class="filter_table">
+                                    <thead>
+                                    <tr>
+                                        <th> ID</th>
+                                        <th> Username</th>
+                                        <th> Email</th>
+                                        <th> Role</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="user : ${allUsers}">
+                                        <td><span th:text="${user.id}"></span></td>
+                                        <td><span th:text="${user.username}"></span></td>
+                                        <td><span th:text="${user.email}"></span></td>
+                                        <td><span th:text="${user.role}"></span></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div id="links">
-                <h2 class="header">links</h2>
+            <div id="tasks">
+                <h2 class="header">Manage Tasks</h2>
+                <div class="monitor">
+                    <h4>All Tasks</h4>
+                    <p th:if="${#lists.isEmpty(allTasks)}">No tasks</p>
+                    <div class="clearfix">
+                        <ul class="content">
+                            <div class="my_table">
+                                <table class="filter_table">
+                                    <thead>
+                                    <tr>
+                                        <th> ID</th>
+                                        <th> Title</th>
+                                        <th> Description</th>
+                                        <th> Due Date</th>
+                                        <th> Status</th>
+                                        <th> Priority</th>
+                                        <th> User</th>
+                                        <th> Category</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="task : ${allTasks}">
+                                        <td><span th:text="${task.id}"></span></td>
+                                        <td><span th:text="${task.title}"></span></td>
+                                        <td><span th:text="${task.description}"></span></td>
+                                        <td><span th:text="${task.due_date}"></span></td>
+                                        <td><span th:text="${task.status}"></span></td>
+                                        <td><span th:text="${task.priority}"></span></td>
+                                        <td><span th:text="${task.user.username}"></span></td>
+                                        <td><span th:text="${task.category.name}"></span></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div id="comments">
-                <h2 class="header">comments</h2>
-            </div>
-            <div id="widgets">
-                <h2 class="header">widgets</h2>
+            <div id="notifications">
+                <h2 class="header">Manage Notifications</h2>
+                <div class="monitor">
+                    <h4>All Notifications</h4>
+                    <p th:if="${#lists.isEmpty(allNotifications)}">No notifications</p>
+                    <div class="clearfix">
+                        <ul class="content">
+                            <div class="my_table">
+                                <table class="filter_table">
+                                    <thead>
+                                    <tr>
+                                        <th> ID</th>
+                                        <th> Description</th>
+                                        <th> User</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="notification : ${allNotifications}">
+                                        <td><span th:text="${notification.id}"></span></td>
+                                        <td><span th:text="${notification.description}"></span></td>
+                                        <td><span th:text="${notification.user.username}"></span></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+                <div class="monitor">
+                    <h4>Add Notification</h4>
+                    <div class="clearfix">
+                        <form action="#" th:action="@{/personalPage/manageNotifications/add}" th:object="${notification}" method="post">
+                            <div>
+                                <label for="notificationDescr">Description:</label>
+                                <input type="text" id="notificationDescr" name="notificationDescr" required />
+                            </div>
+                            <div>
+                                <label for="userEmail">User Email:</label>
+                                <input type="text" id="userEmail" name="userEmail" required />
+                            </div>
+                            <button type="submit">Add Notification</button>
+                        </form>
+                    </div>
+                </div>
             </div>
             <div id="plugins">
                 <h2 class="header">plugins</h2>
-            </div>
-            <div id="users">
-                <h2 class="header">users</h2>
             </div>
             <div id="tools">
                 <h2 class="header">tools</h2>

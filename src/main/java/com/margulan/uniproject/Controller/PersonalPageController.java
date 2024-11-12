@@ -2,9 +2,12 @@ package com.margulan.uniproject.Controller;
 
 import com.margulan.uniproject.Exception.DuplicateEmailException;
 import com.margulan.uniproject.Model.Dto.UserDto;
+import com.margulan.uniproject.Model.Message;
 import com.margulan.uniproject.Model.Task;
 import com.margulan.uniproject.Service.CategoryService;
+import com.margulan.uniproject.Service.MessageService;
 import com.margulan.uniproject.Service.TaskService;
+import com.margulan.uniproject.Service.UsersService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,12 +25,15 @@ import java.util.Map;
 public class PersonalPageController {
 
     private final TaskService taskService;
-
+    private final UsersService usersService;
     private final CategoryService categoryService;
+    private final MessageService messageService;
 
-    public PersonalPageController(TaskService taskService, CategoryService categoryService) {
+    public PersonalPageController(TaskService taskService, CategoryService categoryService, UsersService usersService, MessageService messageService) {
         this.taskService = taskService;
         this.categoryService = categoryService;
+        this.usersService = usersService;
+        this.messageService = messageService;
     }
 
     @GetMapping("/home")
@@ -76,6 +82,33 @@ public class PersonalPageController {
         }
         return "redirect:/personalPage/manageCategories#category";
     }
+
+    @GetMapping("/manageUsers")
+    public String getManageUser(Model model) {
+        model.addAttribute("allUsers", usersService.getAllUsers());
+        return "user_page";
+    }
+
+    @GetMapping("/manageAllTasks")
+    public String getManageTasks(Model model) {
+        model.addAttribute("allTasks", taskService.getAllTasks());
+        model.addAttribute("task", new Task());
+        return "user_page";
+    }
+
+    @GetMapping("/manageNotifications")
+    public String getMessage(Model model) {
+        model.addAttribute("allNotifications", messageService.getAllMessages());
+        model.addAttribute("notification", new Message());
+        return "user_page";
+    }
+
+    @PostMapping("/manageNotifications/add")
+    public String addMessage(@RequestParam String notificationDescr, @RequestParam String userEmail) {
+        messageService.addMessage(notificationDescr, userEmail);
+        return "redirect:/personalPage/manageNotifications#notifications";
+    }
+
 
     @ExceptionHandler(IllegalArgumentException.class)
     public String handleRegistrationException(IllegalArgumentException ex, RedirectAttributes redirectAttributes) {
