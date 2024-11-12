@@ -1,28 +1,27 @@
 package com.margulan.uniproject.Controller;
 
-import com.margulan.uniproject.Exception.DuplicateEmailException;
-import com.margulan.uniproject.Model.Dto.UserDto;
 import com.margulan.uniproject.Model.Message;
 import com.margulan.uniproject.Model.Task;
+import com.margulan.uniproject.Repository.UsersRepository;
 import com.margulan.uniproject.Service.CategoryService;
 import com.margulan.uniproject.Service.MessageService;
 import com.margulan.uniproject.Service.TaskService;
 import com.margulan.uniproject.Service.UsersService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @Controller
 @RequestMapping("/personalPage")
 public class PersonalPageController {
+
+    @Autowired
+    UsersRepository usersRepository;
 
     private final TaskService taskService;
     private final UsersService usersService;
@@ -108,6 +107,12 @@ public class PersonalPageController {
         messageService.addMessage(notificationDescr, userEmail);
         return "redirect:/personalPage/manageNotifications#notifications";
     }
+
+//    @GetMapping("/manageTasksPaginated")
+//    public String getManageTaskPaginated(Model model, @RequestParam(required = true) int limit) {
+//        Pageable pageable = PageRequest.of(1, limit);
+//        return "user_page";
+//    }
 
 
     @ExceptionHandler(IllegalArgumentException.class)
