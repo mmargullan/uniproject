@@ -7,7 +7,7 @@ import java.util.List;
 public interface MessageService {
 
     List<Message> getAllMessages();
-    List<Message> getMessages();
     void addMessage(String notificationDescr, String userEmail);
+    List<Message> getMessagesForCurrentUser();
 
 }

@@ -17,43 +17,99 @@
             <h4>Welcome <span name="login" th:text="${loginUsername}"></span></h4>
         </div>
         <ul>
-            <li><a href="/personalPage/manageTasks#task" id="manageTasksLink">Manage Tasks</a></li>
-            <li><a href="/personalPage/manageCategories#category" id="manageCategoriesLink" sec:authorize="hasRole('ROLE_ADMIN')">Manage Categories</a></li>
             <li><a href="/personalPage/manageUsers#users" id="manageUsersLink" sec:authorize="hasRole('ROLE_ADMIN')">Manage Users</a></li>
             <li><a href="/personalPage/manageAllTasks#tasks" id="manageAllTasksLink" sec:authorize="hasRole('ROLE_ADMIN')">Manage All Tasks</a></li>
-            <li><a href="/personalPage/manageNotifications#notifications" id="manageNotificationsLink">Manage Notifications</a></li>
-            <li><a href="#plugins">plugins</a></li>
+            <li><a href="/personalPage/manageCategories#category" id="manageCategoriesLink" sec:authorize="hasRole('ROLE_ADMIN')">Manage Categories</a></li>
+            <li><a href="/personalPage/manageNotifications#notifications" id="manageNotificationsLink" sec:authorize="hasRole('ROLE_ADMIN')">Manage Notifications</a></li>
+            <li><a href="/personalPage/manageUserTasks#userTasks" id="manageTasksLink">My Tasks</a></li>
+            <li><a href="/personalPage/manageUserNotifications#userNotifications" id="manageUserNotificationsLink">My Notifications</a></li>
             <li><a href="#tools">tools</a></li>
-            <li><a href="#settings">settings</a></li>
+            <li><a href="/personalPage/settings#settings" id="settingsLink">Settings</a></li>
         </ul>
     </div>
     <div class="main">
         <ul class="topbar clearfix">
-            <li><a href="#">q</a></li>
+<!--            <li><a href="#">q</a></li>-->
             <li><a href="#" onclick="document.getElementById('logoutForm').submit()">Logout</a></li>
             <form id="logoutForm" th:action="@{/users/logout}" method="post" style="display: none;"></form>
-            <li><a href="#">o</a></li>
-            <li><a href="#">f</a></li>
-            <li><a href="#">n</a></li>
+<!--            <li><a href="#">o</a></li>-->
         </ul>
         <div class="mainContent clearfix">
-            <div id="task" style="display: none;">
+            <div id="users">
+                <h2 class="header">Manage Users</h2>
+                <div class="monitor">
+                    <h4>All Users</h4>
+                    <div class="clearfix">
+                        <ul class="content">
+                            <div class="my_table">
+                                <table class="filter_table">
+                                    <thead>
+                                    <tr>
+                                        <th> ID</th>
+                                        <th> Username</th>
+                                        <th> Email</th>
+                                        <th> Role</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:if="${#lists.isEmpty(allUsers)}">
+                                        <td colspan="4">No Users</td>
+                                    </tr>
+                                    <tr th:each="user : ${allUsers}">
+                                        <td><span th:text="${user.id}"></span></td>
+                                        <td><span th:text="${user.username}"></span></td>
+                                        <td><span th:text="${user.email}"></span></td>
+                                        <td><span th:text="${user.role}"></span></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="tasks" style="display: none;">
                 <h2 class="header">Manage tasks</h2>
                 <div class="monitor">
                     <h4>All Tasks</h4>
-                    <p th:if="${#lists.isEmpty(tasksForTheCurrentUser)}">No Tasks</p>
                     <div class="clearfix">
-                        <ul class="content">
-                            <li th:each="task : ${tasksForTheCurrentUser}">
-                                <strong th:text="${task.title}">Task Title</strong> - <span th:text="${task.description}">Task Description</span>
-                            </li>
-                        </ul>
+                        <div class="my_table">
+                            <table class="filter_table">
+                                <thead>
+                                <tr>
+                                    <th> ID</th>
+                                    <th> Title</th>
+                                    <th> Description</th>
+                                    <th> Due Date</th>
+                                    <th> Status</th>
+                                    <th> Priority</th>
+                                    <th> User</th>
+                                    <th> Category</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:if="${#lists.isEmpty(allTasks)}">
+                                    <td colspan="8">No Tasks</td>
+                                </tr>
+                                <tr th:each="task : ${allTasks}">
+                                    <td><span th:text="${task.id}"></span></td>
+                                    <td><span th:text="${task.title}"></span></td>
+                                    <td><span th:text="${task.description}"></span></td>
+                                    <td><span th:text="${task.due_date}"></span></td>
+                                    <td><span th:text="${task.status}"></span></td>
+                                    <td><span th:text="${task.priority}"></span></td>
+                                    <td><span th:text="${task.user.username}"></span></td>
+                                    <td><span th:text="${task.category.name}"></span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 <div class="monitor">
                     <h4>Add Task</h4>
                     <div class="clearfix">
-                        <form action="#" th:action="@{/personalPage/manageTasks/add}" th:object="${task}" method="post">
+                        <form action="#" th:action="@{/personalPage/manageAllTasks/add}" th:object="${task}" method="post">
                             <div>
                                 <label for="title">Title:</label>
                                 <input type="text" id="title" name="title" required />
@@ -92,7 +148,7 @@
                 <div class="monitor">
                     <h4>Edit Task</h4>
                     <div class="clearfix">
-                        <form action="#" th:action="@{/personalPage/manageTasks/edit}" th:object="${task}" method="post">
+                        <form action="#" th:action="@{/personalPage/manageAllTasks/edit}" th:object="${task}" method="post">
                             <div>
                                 <label for="taskTitle">Task by title:</label>
                                 <select id="taskTitle" name="selectedTaskByTitle" required>
@@ -141,7 +197,7 @@
                 <div class="monitor">
                     <h4>Delete Task</h4>
                     <div class="clearfix">
-                        <form action="#" th:action="@{/personalPage/manageTasks/delete}" th:object="${task}" method="post">
+                        <form action="#" th:action="@{/personalPage/manageAllTasks/delete}" th:object="${task}" method="post">
                             <div>
                                 <label for="deleteTaskTitle">Task by title:</label>
                                 <select id="deleteTaskTitle" name="deleteTaskByTitle" required>
@@ -180,81 +236,10 @@
                     </div>
                 </div>
             </div>
-            <div id="users">
-                <h2 class="header">Manage Users</h2>
-                <div class="monitor">
-                    <h4>All Users</h4>
-                    <p th:if="${#lists.isEmpty(allUsers)}">No users</p>
-                    <div class="clearfix">
-                        <ul class="content">
-                            <div class="my_table">
-                                <table class="filter_table">
-                                    <thead>
-                                    <tr>
-                                        <th> ID</th>
-                                        <th> Username</th>
-                                        <th> Email</th>
-                                        <th> Role</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr th:each="user : ${allUsers}">
-                                        <td><span th:text="${user.id}"></span></td>
-                                        <td><span th:text="${user.username}"></span></td>
-                                        <td><span th:text="${user.email}"></span></td>
-                                        <td><span th:text="${user.role}"></span></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div id="tasks">
-                <h2 class="header">Manage Tasks</h2>
-                <div class="monitor">
-                    <h4>All Tasks</h4>
-                    <p th:if="${#lists.isEmpty(allTasks)}">No tasks</p>
-                    <div class="clearfix">
-                        <ul class="content">
-                            <div class="my_table">
-                                <table class="filter_table">
-                                    <thead>
-                                    <tr>
-                                        <th> ID</th>
-                                        <th> Title</th>
-                                        <th> Description</th>
-                                        <th> Due Date</th>
-                                        <th> Status</th>
-                                        <th> Priority</th>
-                                        <th> User</th>
-                                        <th> Category</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr th:each="task : ${allTasks}">
-                                        <td><span th:text="${task.id}"></span></td>
-                                        <td><span th:text="${task.title}"></span></td>
-                                        <td><span th:text="${task.description}"></span></td>
-                                        <td><span th:text="${task.due_date}"></span></td>
-                                        <td><span th:text="${task.status}"></span></td>
-                                        <td><span th:text="${task.priority}"></span></td>
-                                        <td><span th:text="${task.user.username}"></span></td>
-                                        <td><span th:text="${task.category.name}"></span></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </ul>
-                    </div>
-                </div>
-            </div>
             <div id="notifications">
                 <h2 class="header">Manage Notifications</h2>
                 <div class="monitor">
                     <h4>All Notifications</h4>
-                    <p th:if="${#lists.isEmpty(allNotifications)}">No notifications</p>
                     <div class="clearfix">
                         <ul class="content">
                             <div class="my_table">
@@ -267,6 +252,9 @@
                                     </tr>
                                     </thead>
                                     <tbody>
+                                    <tr th:if="${#lists.isEmpty(allNotifications)}">
+                                        <td colspan="3">No Notifications</td>
+                                    </tr>
                                     <tr th:each="notification : ${allNotifications}">
                                         <td><span th:text="${notification.id}"></span></td>
                                         <td><span th:text="${notification.description}"></span></td>
@@ -295,22 +283,80 @@
                     </div>
                 </div>
             </div>
-            <div id="plugins">
-                <h2 class="header">plugins</h2>
+            <div id="userTasks">
+                <h2 class="header">My Tasks</h2>
+                <div class="monitor">
+                    <h4>All Tasks</h4>
+                    <div class="clearfix">
+                        <div class="my_table">
+                            <table class="filter_table">
+                                <thead>
+                                <tr>
+                                    <th> ID</th>
+                                    <th> Title</th>
+                                    <th> Description</th>
+                                    <th> Due Date</th>
+                                    <th> Status</th>
+                                    <th> Priority</th>
+                                    <th> User</th>
+                                    <th> Category</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:if="${#lists.isEmpty(tasksForTheCurrentUser)}">
+                                    <td colspan="8">No Tasks</td>
+                                </tr>
+                                <tr th:each="task : ${tasksForTheCurrentUser}">
+                                    <td><span th:text="${task.id}"></span></td>
+                                    <td><span th:text="${task.title}"></span></td>
+                                    <td><span th:text="${task.description}"></span></td>
+                                    <td><span th:text="${task.due_date}"></span></td>
+                                    <td><span th:text="${task.status}"></span></td>
+                                    <td><span th:text="${task.priority}"></span></td>
+                                    <td><span th:text="${task.user.username}"></span></td>
+                                    <td><span th:text="${task.category.name}"></span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="userNotifications">
+                <h2 class="header">My Notifications</h2>
+                <p th:if="${#lists.isEmpty(userNotifications)}">No notifications</p>
+                <div class="clearfix">
+                    <ul class="content">
+                        <li th:each="notification : ${userNotifications}">
+                            <strong th:text="${notification.description}"></strong>
+                        </li>
+                    </ul>
+                </div>
             </div>
             <div id="tools">
                 <h2 class="header">tools</h2>
             </div>
             <div id="settings">
-                <h2 class="header">settings</h2>
+                <h2 class="header">Settings</h2>
+                <div class="monitor">
+                    <h4>Reset Password</h4>
+                    <div class="clearfix">
+                        <span th:text="${requestSentSuccess}"></span>
+                        <form th:action="@{/personalPage/settings/passwordResetRequest}" method="post">
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" name="email" required="required"/>
+                            <button type="submit">Send Password Reset Link</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-        <ul class="statusbar">
-            <li><a href=""></a></li>
-            <li><a href=""></a></li>
-            <li class="profiles-setting"><a href="">s</a></li>
-            <li class="logout"><a href="">k</a></li>
-        </ul>
+<!--        <ul class="statusbar">-->
+<!--            <li><a href=""></a></li>-->
+<!--            <li><a href=""></a></li>-->
+<!--            <li class="profiles-setting"><a href="">s</a></li>-->
+<!--            <li class="logout"><a href="">k</a></li>-->
+<!--        </ul>-->
     </div>
 </div>
 

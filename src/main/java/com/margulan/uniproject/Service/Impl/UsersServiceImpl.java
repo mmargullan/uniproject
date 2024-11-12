@@ -47,10 +47,6 @@ public class UsersServiceImpl implements UsersService {
             user.setRole("USER");
             usersRepository.save(user);
         }
-
-        // Save user to Redis
-//            redisService.saveData(USERS_CACHE_KEY, user);
-
     }
 
     @Override
@@ -97,6 +93,23 @@ public class UsersServiceImpl implements UsersService {
         } else {
             throw new UserNotFoundException("User not found");
         }
+    }
+
+    @Override
+    public String getLoggedUsernameByEmail(String email) {
+        return usersRepository.findByEmail(email).get().getUsername();
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return usersRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("User not found -> incorrect email.")
+        );
+    }
+
+    @Override
+    public void resetUserWithNewPassword(User user) {
+        usersRepository.save(user);
     }
 
 }

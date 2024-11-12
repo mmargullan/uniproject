@@ -12,5 +12,8 @@ public interface UsersService {
     void deleteUser(String id);
 //    String authenticate(UserDto userDto);
     User login(UserDto userDto);
+    String getLoggedUsernameByEmail(String email);
+    User findByEmail(String email);
+    void resetUserWithNewPassword(User user);
 
 }

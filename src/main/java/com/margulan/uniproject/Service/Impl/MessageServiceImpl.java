@@ -32,14 +32,14 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<Message> getMessages() {
+    public List<Message> getMessagesForCurrentUser() {
         User user = usersRepository.findByEmail(getLoggedUser().getName()).orElseThrow(
                 () -> new UserNotFoundException("User not found"));
         return messageRepository.findByUserId(user.getId());
     }
 
     @Override
-    public void addMessage(String notificationDescr, String userEmail){
+    public void addMessage(String notificationDescr, String userEmail) {
         User user = usersRepository.findByEmail(userEmail).orElseThrow(
                 () -> new UserNotFoundException("User not found"));
         messageRepository.save(new Message(notificationDescr, user));

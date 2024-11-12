@@ -48,11 +48,6 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public String getLoggedUsernameByEmail(String email) {
-        return usersRepository.findByEmail(email).get().getUsername();
-    }
-
-    @Override
     public void editTask(String selectedTaskByTitle, Task task) {
         if (task.getDue_date().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Edit - Due date cannot be in the past");

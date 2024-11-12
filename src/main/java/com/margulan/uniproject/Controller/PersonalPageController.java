@@ -1,71 +1,82 @@
 package com.margulan.uniproject.Controller;
 
 import com.margulan.uniproject.Model.Message;
+import com.margulan.uniproject.Model.PasswordResetToken;
 import com.margulan.uniproject.Model.Task;
+import com.margulan.uniproject.Model.User;
 import com.margulan.uniproject.Repository.UsersRepository;
-import com.margulan.uniproject.Service.CategoryService;
-import com.margulan.uniproject.Service.MessageService;
-import com.margulan.uniproject.Service.TaskService;
-import com.margulan.uniproject.Service.UsersService;
+import com.margulan.uniproject.Service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
+
 @Controller
 @RequestMapping("/personalPage")
 public class PersonalPageController {
 
-    @Autowired
-    UsersRepository usersRepository;
+    @Value("${app.url}")  // Base URL for password reset (e.g., http://localhost:8080)
+    private String appUrl;
 
     private final TaskService taskService;
     private final UsersService usersService;
     private final CategoryService categoryService;
     private final MessageService messageService;
+    private final PasswordResetTokenService tokenService;
 
-    public PersonalPageController(TaskService taskService, CategoryService categoryService, UsersService usersService, MessageService messageService) {
+    public PersonalPageController(TaskService taskService, CategoryService categoryService,
+                                  UsersService usersService, MessageService messageService,
+                                  PasswordResetTokenService tokenService) {
         this.taskService = taskService;
         this.categoryService = categoryService;
         this.usersService = usersService;
         this.messageService = messageService;
+        this.tokenService = tokenService;
+    }
+
+    // Username of the logged-in user
+    // @ModelAttribute to make "loginUsername" available automatically in the model for all methods within the controller
+    @ModelAttribute("loginUsername")
+    public String addLoggedUsernameToModel() {
+        return usersService.getLoggedUsernameByEmail(
+                SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     @GetMapping("/home")
     public String getPersonalPage(Model model) {
-        String loggedUsername = taskService.getLoggedUsernameByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        model.addAttribute("loginUsername", loggedUsername);
         return "user_page";
     }
 
-    @GetMapping("/manageTasks")
+    @GetMapping("/manageAllTasks")
     public String getManageTask(Model model) {
-        model.addAttribute("tasksForTheCurrentUser", taskService.getTasksForCurrentUser());
+        model.addAttribute("allTasks", taskService.getAllTasks());
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("task", new Task());
         return "user_page";
     }
 
-    @PostMapping("/manageTasks/add")
+    @PostMapping("/manageAllTasks/add")
     public String manageAddTask(@ModelAttribute Task task) {
         taskService.addTaskForCurrentUser(task);
-        return "redirect:/personalPage/manageTasks#task";
+        return "redirect:/personalPage/manageAllTasks#tasks";
     }
 
-    @PostMapping("/manageTasks/edit")
+    @PostMapping("/manageAllTasks/edit")
     public String manageEditTask(@RequestParam String selectedTaskByTitle, @ModelAttribute Task task) {
         taskService.editTask(selectedTaskByTitle, task);
-        return "redirect:/personalPage/manageTasks#task";
+        return "redirect:/personalPage/manageAllTasks#tasks";
     }
 
-    @PostMapping("/manageTasks/delete")
+    @PostMapping("/manageAllTasks/delete")
     public String manageDeleteTask(@RequestParam String deleteTaskByTitle) {
         taskService.deleteByTitle(deleteTaskByTitle);
-        return "redirect:/personalPage/manageTasks#task";
+        return "redirect:/personalPage/manageAllTasks#tasks";
     }
 
     @GetMapping("/manageCategories")
@@ -88,10 +99,9 @@ public class PersonalPageController {
         return "user_page";
     }
 
-    @GetMapping("/manageAllTasks")
+    @GetMapping("/manageUserTasks")
     public String getManageTasks(Model model) {
-        model.addAttribute("allTasks", taskService.getAllTasks());
-        model.addAttribute("task", new Task());
+        model.addAttribute("tasksForTheCurrentUser", taskService.getTasksForCurrentUser());
         return "user_page";
     }
 
@@ -108,12 +118,38 @@ public class PersonalPageController {
         return "redirect:/personalPage/manageNotifications#notifications";
     }
 
+    @GetMapping("/manageUserNotifications")
+    public String getUserMessage(Model model) {
+        model.addAttribute("userNotifications", messageService.getMessagesForCurrentUser());
+        return "user_page";
+    }
+
 //    @GetMapping("/manageTasksPaginated")
 //    public String getManageTaskPaginated(Model model, @RequestParam(required = true) int limit) {
 //        Pageable pageable = PageRequest.of(1, limit);
 //        return "user_page";
 //    }
 
+    @GetMapping("/settings")
+    public String getSettings() {
+        return "user_page";
+    }
+
+//    @GetMapping("/settings/passwordResetRequest")
+//    public String passwordResetRequest() {
+//        return "user_page";
+//    }
+
+    @PostMapping("/settings/passwordResetRequest")
+    public String processPasswordResetRequest(@RequestParam String email, Model model) {
+        User user = usersService.findByEmail(email);
+        PasswordResetToken token = tokenService.createPasswordResetToken(user);
+
+        // Send email with the reset link
+        tokenService.sendPasswordResetEmail(appUrl, user.getEmail(), token.getToken());
+        model.addAttribute("requestSentSuccess", "Request successfully sent");
+        return "redirect:/personalPage/settings#settings";
+    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public String handleRegistrationException(IllegalArgumentException ex, RedirectAttributes redirectAttributes) {
@@ -121,6 +157,6 @@ public class PersonalPageController {
         String message = ex.getMessage().split(" - ")[1];
         if (action.equals("Add")) redirectAttributes.addFlashAttribute("illegalArgumentAdd", message);
         if (action.equals("Edit")) redirectAttributes.addFlashAttribute("illegalArgumentEdit", message);
-        return "redirect:/personalPage/manageTasks#task";
+        return "redirect:/personalPage/manageAllTasks#tasks";
     }
 }

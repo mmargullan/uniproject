@@ -7,14 +7,8 @@ import java.util.List;
 public interface TaskService {
 
     List<Task> getAllTasks();
-
     List<Task> getTasksForCurrentUser();
-
     void addTaskForCurrentUser(Task task);
-
-    String getLoggedUsernameByEmail(String email);
-
     void editTask(String selectedTaskByTitle, Task task);
-
     void deleteByTitle(String selectedTaskByTitle);
 }
