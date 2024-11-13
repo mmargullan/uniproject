@@ -4,18 +4,21 @@ import com.margulan.uniproject.Model.Message;
 import com.margulan.uniproject.Model.PasswordResetToken;
 import com.margulan.uniproject.Model.Task;
 import com.margulan.uniproject.Model.User;
-import com.margulan.uniproject.Repository.UsersRepository;
+import com.margulan.uniproject.Repository.TasksRepository;
 import com.margulan.uniproject.Service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping("/personalPage")
@@ -23,6 +26,9 @@ public class PersonalPageController {
 
     @Value("${app.url}")  // Base URL for password reset (e.g., http://localhost:8080)
     private String appUrl;
+
+    @Autowired
+    TasksRepository tasksRepository;
 
     private final TaskService taskService;
     private final UsersService usersService;
@@ -49,7 +55,7 @@ public class PersonalPageController {
     }
 
     @GetMapping("/home")
-    public String getPersonalPage(Model model) {
+    public String getPersonalPage() {
         return "user_page";
     }
 
@@ -100,8 +106,15 @@ public class PersonalPageController {
     }
 
     @GetMapping("/manageUserTasks")
-    public String getManageTasks(Model model) {
-        model.addAttribute("tasksForTheCurrentUser", taskService.getTasksForCurrentUser());
+    public String getManageTasks(Model model,
+                                       @RequestParam(name = "filterTitle", required = false) String title,
+                                       @RequestParam(name = "filterStatus", required = false) String status,
+                                       @RequestParam(name = "filterPriority", required = false) String priority,
+                                       @RequestParam(required = false, defaultValue = "0") int page,
+                                       @RequestParam(required = false, defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        model.addAttribute("tasksUserPaginated",
+                taskService.searchTasksForCurrentUser(title, status, priority, pageable));
         return "user_page";
     }
 
@@ -135,11 +148,6 @@ public class PersonalPageController {
         return "user_page";
     }
 
-//    @GetMapping("/settings/passwordResetRequest")
-//    public String passwordResetRequest() {
-//        return "user_page";
-//    }
-
     @PostMapping("/settings/passwordResetRequest")
     public String processPasswordResetRequest(@RequestParam String email, Model model) {
         User user = usersService.findByEmail(email);
@@ -150,6 +158,17 @@ public class PersonalPageController {
         model.addAttribute("requestSentSuccess", "Request successfully sent");
         return "redirect:/personalPage/settings#settings";
     }
+
+//    @GetMapping("/searchTasks")
+//    public List<Task> searchTasks(
+//            @RequestParam int user_id,
+//            @RequestParam(required = false) String title,
+//            @RequestParam(required = false) String status,
+//            @RequestParam(required = false) String priority,
+//            @RequestParam int page) {
+//        Pageable pageable = PageRequest.of(page, 10);
+//        return tasksRepository.searchTasksByUserId(user_id, title, status, priority, pageable);
+//    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public String handleRegistrationException(IllegalArgumentException ex, RedirectAttributes redirectAttributes) {

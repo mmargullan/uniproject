@@ -8,6 +8,8 @@ import com.margulan.uniproject.Repository.UsersRepository;
 import com.margulan.uniproject.Service.TaskService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,11 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<Task> getAllTasks() {
         return tasksRepository.findAll();
+    }
+
+    @Override
+    public Page<Task> getAllTasks(Pageable pageable) {
+        return tasksRepository.findAll(pageable);
     }
 
     @Override
@@ -79,10 +86,16 @@ public class TaskServiceImpl implements TaskService {
         tasksRepository.deleteByTitle(deleteTaskByTitle);
     }
 
+    @Override
+    public Page<Task> searchTasksForCurrentUser(String title, String status, String priority, Pageable pageable) {
+        User user = usersRepository.findByEmail(getLoggedUser().getName()).orElseThrow(
+                () -> new UserNotFoundException("User not found"));
+        return tasksRepository.searchTasksByUserId(user.getId(), title, status, priority, pageable);
+    }
+
     // Returns email of currently logged user
     private Authentication getLoggedUser() {
         return SecurityContextHolder.getContext().getAuthentication();
     }
-
 
 }

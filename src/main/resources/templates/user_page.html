@@ -288,37 +288,79 @@
                 <div class="monitor">
                     <h4>All Tasks</h4>
                     <div class="clearfix">
-                        <div class="my_table">
-                            <table class="filter_table">
-                                <thead>
-                                <tr>
-                                    <th> ID</th>
-                                    <th> Title</th>
-                                    <th> Description</th>
-                                    <th> Due Date</th>
-                                    <th> Status</th>
-                                    <th> Priority</th>
-                                    <th> User</th>
-                                    <th> Category</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:if="${#lists.isEmpty(tasksForTheCurrentUser)}">
-                                    <td colspan="8">No Tasks</td>
-                                </tr>
-                                <tr th:each="task : ${tasksForTheCurrentUser}">
-                                    <td><span th:text="${task.id}"></span></td>
-                                    <td><span th:text="${task.title}"></span></td>
-                                    <td><span th:text="${task.description}"></span></td>
-                                    <td><span th:text="${task.due_date}"></span></td>
-                                    <td><span th:text="${task.status}"></span></td>
-                                    <td><span th:text="${task.priority}"></span></td>
-                                    <td><span th:text="${task.user.username}"></span></td>
-                                    <td><span th:text="${task.category.name}"></span></td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <form action="#" th:action="@{/personalPage/manageUserTasks#userTasks}" method="get">
+
+                            <div>
+                                <!-- Filter Toggle Checkbox -->
+                                <input type="checkbox" id="filterToggle" class="filter-toggle-checkbox" />
+
+                                <!-- Filter Label with Arrow -->
+                                <label for="filterToggle" class="filter-toggle-label">
+                                    <span>Show Filters</span>
+                                    <span class="arrow">&#9660;</span> <!-- Downward arrow -->
+                                </label>
+
+                                <!-- Filter Form Section -->
+                                <div class="filter-section">
+                                    <label for="filterTitle">Title:</label>
+                                    <input type="text" name="filterTitle" id="filterTitle" placeholder="Title">
+
+                                    <label for="filterStatus">Status:</label>
+                                    <input type="text" name="filterStatus" id="filterStatus" placeholder="Status">
+
+                                    <label for="filterPriority">Priority:</label>
+                                    <input type="text" name="filterPriority" id="filterPriority" placeholder="Priority">
+
+                                    <button type="submit">Apply Filter</button>
+                                </div>
+                            </div>
+
+
+                            <div class="my_table" th:if="${tasksUserPaginated != null}">
+                                <table class="filter_table">
+                                    <thead>
+                                    <tr>
+                                        <th> ID</th>
+                                        <th> Title</th>
+                                        <th> Description</th>
+                                        <th> Due Date</th>
+                                        <th> Status</th>
+                                        <th> Priority</th>
+                                        <th> User</th>
+                                        <th> Category</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:if="${#lists.isEmpty(tasksUserPaginated.content)}">
+                                        <td colspan="8">No Tasks</td>
+                                    </tr>
+                                    <tr th:each="task : ${tasksUserPaginated.content}">
+                                        <td><span th:text="${task.id}"></span></td>
+                                        <td><span th:text="${task.title}"></span></td>
+                                        <td><span th:text="${task.description}"></span></td>
+                                        <td><span th:text="${task.due_date}"></span></td>
+                                        <td><span th:text="${task.status}"></span></td>
+                                        <td><span th:text="${task.priority}"></span></td>
+                                        <td><span th:text="${task.user.username}"></span></td>
+                                        <td><span th:text="${task.category.name}"></span></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <div>
+                                    <span th:text="'Page ' + (${tasksUserPaginated.number + 1}) + ' of ' +
+                                    (${tasksUserPaginated.totalPages == 0 ? 1 : tasksUserPaginated.totalPages})"></span>
+                                </div>
+
+                                <div>
+                                    <a th:href="@{|/personalPage/manageUserTasks?page=${tasksUserPaginated.number - 1}&size=${tasksUserPaginated.size}#userTasks|}"
+                                       th:if="${tasksUserPaginated.hasPrevious()}">Previous</a>
+
+                                    <a th:href="@{|/personalPage/manageUserTasks?page=${tasksUserPaginated.number + 1}&size=${tasksUserPaginated.size}#userTasks|}"
+                                       th:if="${tasksUserPaginated.hasNext()}">Next</a>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

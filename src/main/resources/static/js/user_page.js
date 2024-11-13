@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
         showSectionFromHash();
         updateActiveLink();
     } else {
-        // Optionally show the first section by default (e.g., Dashboard)
-        window.location.hash = "#dashboard";
+        // Optionally show the first section by default
+        window.location.hash = "#userNotifications";
     }
 });
