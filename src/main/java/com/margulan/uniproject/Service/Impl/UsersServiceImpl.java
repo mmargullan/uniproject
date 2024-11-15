@@ -10,6 +10,8 @@ import com.margulan.uniproject.Repository.UsersRepository;
 import com.margulan.uniproject.Service.RedisService;
 import com.margulan.uniproject.Service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -72,15 +74,6 @@ public class UsersServiceImpl implements UsersService {
         }
     }
 
-//    @Override
-//    public String authenticate(UserDto userDto) {
-//        User user = usersRepository.findByUsername(userDto.getUsername());
-//        if (user != null && user.getPassword().equals(userDto.getPassword())) {
-//            return jwtTokenUtil.generateToken(user);
-//        }
-//        throw new BadRequestException("Invalid credentials");
-//    }
-
     @Override
     public User login(UserDto userDto) {
         User user = userMapper.toEntity(userDto);
@@ -110,6 +103,11 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public void resetUserWithNewPassword(User user) {
         usersRepository.save(user);
+    }
+
+    @Override
+    public Authentication getLoggedUser() {
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 
 }

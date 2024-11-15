@@ -2,6 +2,7 @@ package com.margulan.uniproject.Service;
 
 import com.margulan.uniproject.Model.Dto.UserDto;
 import com.margulan.uniproject.Model.User;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -15,5 +16,6 @@ public interface UsersService {
     String getLoggedUsernameByEmail(String email);
     User findByEmail(String email);
     void resetUserWithNewPassword(User user);
+    Authentication getLoggedUser();
 
 }

@@ -1,6 +1,11 @@
 package com.margulan.uniproject.Controller;
 
+import com.margulan.uniproject.Model.Photo;
 import com.margulan.uniproject.Service.PhotoService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,16 +24,16 @@ public class PhotoController {
         this.photoService = photoService;
     }
 
-    @PostMapping
-    public String uploadPhoto(@PathVariable String user_id, @RequestParam(name = "photo") MultipartFile photo, RedirectAttributes redirectAttributes) throws IOException {
-        photoService.uploadPhoto(user_id, photo);
-        return "redirect:/personalPage";
+    @PostMapping("/uploadPhoto")
+    public String uploadPhoto(@RequestParam("photo") MultipartFile file) throws IOException {
+        photoService.uploadPhoto(file);
+        return "user_page";
     }
 
     @GetMapping("/getPhoto")
-    public String getPhoto(@PathVariable(name = "photo_id") String photo_id, Model model) throws IOException {
-        model.addAttribute("photo", photoService.getPhoto(photo_id));
-        return "redirect:/personalPage";
+    public ResponseEntity<byte[]> getPhoto() {
+        return photoService.getPhoto();
     }
+
 
 }
