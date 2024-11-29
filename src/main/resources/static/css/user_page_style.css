@@ -12,11 +12,18 @@ body {
   width: 0;
   clear: both;
 }
-.admin-panel {
+/*.admin-panel {
   display: flex;
   width: 990px;
   margin: 50px auto;
+}*/
+.admin-panel {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    margin: 0;
 }
+
 /*slidebar侧边栏*/
 .slidebar {
   width: 20%;
@@ -305,7 +312,7 @@ body {
   background: linear-gradient(top,rgb(220,85,70),rgb(210,65,53));
 }
 /*logo*/
-.logo a {
+/*.logo a {
   width: 88px;
   height: 88px;
   display: inline-block;
@@ -316,6 +323,20 @@ body {
   border: 1px solid rgb(200,200,200);
   border-radius: 50%;
   background-color: rgb(214,214,214);
+}*/
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.logo .show-photo {
+  width: 130px;
+  height: 130px;
+  border: 1px solid rgb(200, 200, 200);
+  border-radius: 50%;
+  background-color: rgb(214, 214, 214);
 }
 .logo a:before {
   content: "A";
@@ -366,7 +387,7 @@ body {
   border-left: 1px solid rgb(235,235,235);
 }
 
-
+/* Filter fields for tasks table */
 /* Hide the filter section by default */
 .filter-section {
     display: none;
@@ -414,7 +435,7 @@ input[type="text"] {
 button {
     background-color: #6c757d;
     color: white;
-    padding: 10px;
+    padding: 5px 5px;
     border: none;
     cursor: pointer;
     width: 15%;
@@ -429,4 +450,42 @@ button:hover {
 /* Hiding the checkbox input */
 #filterToggle {
     display: none;
+}
+
+/* Photo Upload */
+.photo-upload {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    height: auto;
+}
+
+.upload-button {
+    display: inline-block;
+    padding: 2px 2px;
+    background-color: #6c757d;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 12px;
+    width: auto;
+    border: none;
+}
+
+.placeholder-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: #888; /* Optional: You can change the text color */
+    text-align: center;
+}
+
+.upload-button:hover {
+    background-color: #5a6268;
 }
